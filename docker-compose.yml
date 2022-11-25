@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  ecommerce:
+    image: ecommerce
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecommerce
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    env_file:
+      - docker-env-file
+    networks:
+      - ecommerce-local
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ecommerce_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=ecommercepwd
+    volumes:
+      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      - postgres-data:/var/lib/postgres
+    networks:
+      - ecommerce-local
+volumes:
+  postgres-data:
+
+networks:
+  ecommerce-local:
+    name: ecommerce-local
